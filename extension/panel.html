@@ -9,172 +9,105 @@
 </head>
 <body>
   <a class="skip" href="#gallery">跳到图片列表</a>
+  <h1 class="sr-only">页面图片保存</h1>
 
-  <div class="setup">
-    <!-- Header: App Title, Page Info & Refresh -->
-    <header class="app-header">
-      <div class="header-main">
-        <div class="brand">
-          <div class="brand-logo" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="4"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <path d="M21 15l-5-5L5 21"/>
-            </svg>
-          </div>
-          <div class="brand-info">
-            <div class="brand-title">
-              <h1>图片批量保存</h1>
-              <span class="version">1.0</span>
-            </div>
-            <span class="eyebrow">无损提取 · 保持当前页</span>
-          </div>
-        </div>
-
-        <button id="refresh" class="btn-refresh" disabled title="重新读取当前网页的图片">
-          <span>刷新</span>
-        </button>
-      </div>
-
-      <!-- Source Card -->
-      <div class="source-card">
-        <div class="source-meta">
-          <span class="source-host-chip">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
-            <span id="source-host">当前网页 · 已加载图片</span>
-          </span>
-        </div>
+  <!-- 来源与保存目标 -->
+  <header class="topbar">
+    <div class="source-row">
+      <div class="source-info">
+        <p id="source-host" class="source-host">未连接页面</p>
         <p id="source-title" class="source-title" title="当前页面标题">在网页上点击扩展图标开始</p>
       </div>
-      <p id="source-warning" class="notice" hidden></p>
-    </header>
+      <button id="refresh" class="icon-btn" disabled title="重新读取当前网页的图片" aria-label="重新读取当前网页的图片">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/>
+          <path d="M20.5 3.5v6h-6"/>
+        </svg>
+      </button>
+    </div>
 
-    <!-- Save Destination Section -->
-    <section class="destination" aria-label="保存位置">
-      <div class="section-line">
-        <div class="section-title">
-          <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-          </svg>
-          <h2>保存到</h2>
-        </div>
-        <button id="choose-directory" class="text-button action-link">选择目录</button>
+    <p id="source-warning" class="notice" hidden></p>
+
+    <div class="target-row">
+      <svg class="target-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 7V5h6l2 2h10v13H3Z"/>
+      </svg>
+      <span id="directory-name" class="target-name">尚未选择目录</span>
+      <span id="permission-tag" class="tag">首次选择</span>
+      <button id="choose-directory" class="link-btn">选择目录</button>
+    </div>
+
+    <button id="regrant" class="link-btn warn regrant" hidden>重新授权这个目录</button>
+
+    <div class="subfolder-row">
+      <label class="check-line"><input type="checkbox" id="use-subfolder" checked><span>按标题建子目录</span></label>
+      <label class="sr-only" for="folder-name">子目录名称</label>
+      <input id="folder-name" class="folder-input" type="text" maxlength="200" placeholder="子目录名称，可修改" autocomplete="off">
+    </div>
+
+    <p id="destination-preview" class="path-line">选择一次目录，之后可复用</p>
+  </header>
+
+  <!-- 范围、筛选与选择 -->
+  <section class="toolbar" aria-label="图片范围和选择">
+    <div class="filter-row">
+      <label class="sr-only" for="scope">图片范围</label>
+      <select id="scope">
+        <option value="all">全部已加载</option>
+        <option value="visible">当前屏幕可见</option>
+      </select>
+
+      <label class="sr-only" for="minimum">尺寸筛选</label>
+      <select id="minimum">
+        <option value="0">不限尺寸</option>
+        <option value="100">最短边 ≥ 100 px</option>
+        <option value="300">最短边 ≥ 300 px</option>
+        <option value="600">最短边 ≥ 600 px</option>
+      </select>
+
+      <button id="refresh-visible" class="quiet-btn" hidden title="滚动网页后按当前视口更新可见范围">更新可见</button>
+    </div>
+
+    <div class="tool-row">
+      <div class="batch">
+        <button id="select-all" class="text-btn">全选</button>
+        <button id="invert" class="text-btn">反选</button>
+        <button id="clear" class="text-btn">清空</button>
       </div>
-
-      <div class="directory">
-        <div class="directory-info">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5h6l2 2h10v13H3Z"/></svg>
-          <span id="directory-name">尚未选择目录</span>
-        </div>
-        <span id="permission-tag" class="tag">首次选择</span>
+      <div class="tool-meta">
+        <span class="count-line"><span id="total-count">0</span> 张</span>
+        <span id="duplicate-count" class="count-line"></span>
+        <span id="selection-count" class="selected-pill">已选 0 张</span>
       </div>
+    </div>
 
-      <button id="regrant" class="permission-button" hidden>重新授权这个目录</button>
+    <p id="scan-notes" class="notes-line"></p>
+  </section>
 
-      <div class="subfolder-row">
-        <label class="folder-option">
-          <input type="checkbox" id="use-subfolder" checked>
-          <span>按标题建子目录</span>
-        </label>
-        <div class="folder-input-wrap">
-          <label for="folder-name" class="sr-only">子目录名称</label>
-          <input id="folder-name" class="folder-input" type="text" maxlength="200" placeholder="子目录名称，可修改" autocomplete="off">
-        </div>
-      </div>
-
-      <p id="destination-preview" class="small muted destination-preview-box">选择一次目录，之后可复用</p>
-    </section>
-
-    <!-- Filters and Selection Toolbar -->
-    <section class="selection" aria-label="图片范围和选择">
-      <div class="section-line">
-        <div class="section-title">
-          <svg class="section-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <rect x="3" y="3" width="18" height="18" rx="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          <h2>已加载图片 <span id="total-count" class="count">0</span></h2>
-          <span id="duplicate-count" class="chip-dedupe"></span>
-        </div>
-        <span id="selection-count" class="small selection-badge">已选 0 张</span>
-      </div>
-
-      <div class="filters">
-        <div class="select-box">
-          <label for="scope" class="sr-only">图片范围</label>
-          <select id="scope">
-            <option value="all">全部已加载</option>
-            <option value="visible">当前屏幕可见</option>
-          </select>
-          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-
-        <div class="select-box">
-          <label for="minimum" class="sr-only">尺寸筛选</label>
-          <select id="minimum">
-            <option value="0">不限尺寸</option>
-            <option value="100">最短边 ≥ 100 px</option>
-            <option value="300">最短边 ≥ 300 px</option>
-            <option value="600">最短边 ≥ 600 px</option>
-          </select>
-          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-
-        <button id="refresh-visible" class="btn-subtle" hidden title="滚动网页后更新可见范围">更新可见</button>
-      </div>
-
-      <p id="scan-notes" class="small muted scan-notes-bar"></p>
-
-      <div class="selection-tools">
-        <div class="batch-buttons">
-          <button id="select-all" class="batch-btn">全选</button>
-          <button id="invert" class="batch-btn">反选</button>
-          <button id="clear" class="batch-btn">清空</button>
-        </div>
-        <span class="shortcut-tip">Ctrl+A 全选 · Shift 连选</span>
-      </div>
-    </section>
-  </div>
-
-  <!-- Gallery Main -->
+  <!-- 图片多选列表 -->
   <main id="gallery" class="gallery" tabindex="-1" aria-label="图片多选列表">
     <div id="empty" class="empty">
-      <div class="empty-icon-wrap">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M3 3h18v18H3Z M3 17l6-6 5 5 3-3 4 4 M15 7h.01"/>
-        </svg>
-      </div>
       <p class="empty-title">尚未获取图片</p>
-      <p class="empty-desc">在目标网页上点击扩展图标<br>侧边栏将自动提取全部高品质图片</p>
+      <p class="empty-desc">在目标网页上点击扩展图标，侧边栏会提取页面已加载的图片。</p>
     </div>
   </main>
 
-  <!-- Sticky Footer -->
+  <!-- 底部操作 -->
   <footer>
     <p id="previous-job" class="notice" hidden></p>
-    <div class="status-wrap">
-      <span class="status-dot"></span>
-      <p id="status" role="status" aria-live="polite">准备好后，图片会出现在这里</p>
-    </div>
+    <p id="status" role="status" aria-live="polite">准备好后，图片会出现在这里</p>
     <progress id="progress" max="1" value="0" hidden aria-label="保存进度"></progress>
 
-    <div class="download-actions">
-      <button id="download-selected" class="primary" disabled>下载所选 · 0</button>
-      <button id="download-all" class="secondary" disabled>一键下载全部</button>
+    <div class="actions">
+      <button id="download-selected" disabled>下载所选 · 0</button>
+      <button id="download-all" disabled>下载全部 · 0</button>
     </div>
 
-    <div class="extra-actions">
-      <button id="retry" class="text-button retry-btn" hidden>重试失败项</button>
-      <button id="stop" class="text-button danger stop-btn" hidden>停止后续保存</button>
-      <button id="export-report" class="text-button export-btn">导出报告</button>
+    <div class="footer-links">
+      <button id="retry" class="link-btn warn" hidden>重试失败项</button>
+      <button id="stop" class="link-btn danger" hidden>停止后续保存</button>
+      <button id="export-report" class="link-btn subtle">导出报告</button>
     </div>
-
-    <p class="footnote">按网页原顺序保存原文件 · 保存中请保持侧边栏打开</p>
   </footer>
 </body>
 </html>

@@ -54,4 +54,6 @@ npm run package
 
 ZIP 解压后包含 `manifest.json`，可作为已解压扩展加载。发布前核对 ZIP 内容、文件哈希和[验证状态](verification.md)。打包不上传文件或自动发布。
 
-图标源脚本为 `scripts/icons.ps1`，使用 Windows System.Drawing；仓库已包含生成好的图标，普通使用与测试无需重新生成。
+图标源脚本为 `scripts/icons.ps1`，使用 Windows System.Drawing，生成圆角方块加下载箭头的基础几何图标；仓库已包含生成好的图标，普通使用与测试无需重新生成。
+
+侧边栏样式集中在 `extension/panel.css`：中性灰阶配系统蓝强调色，主按钮为石墨黑，不使用渐变、彩色光晕和位移动画。颜色只在 `:root` 与 `prefers-color-scheme` 中定义为自定义属性，组件规则不写死颜色。改配色或图标后运行 `node scripts/generate-previews.mjs` 重新生成 `docs/assets` 中的浅色、深色与紧凑预览图。

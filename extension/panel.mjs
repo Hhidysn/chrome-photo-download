@@ -9,7 +9,7 @@ let windowId, sourceKey, sourceRequest, source, pendingSource;
 let items = [], selected = new Set(), previewUrls = [], directoryHandle, permission = "prompt";
 let phase = "initializing", stopRequested = false, lastAnchor, lastSave, previousJob;
 let sourceChanged = false;
-let report = {version: "1.0.0", build: "20261005.2", capture: null, save: null};
+let report = {version: "1.0.0", build: "20261005.3", capture: null, save: null};
 
 const scopeItems = () => eligibleItems(items, $("scope").value, Number($("minimum").value));
 const scopeReady = () => scopeItems().filter((item) => item.status === "ready");
