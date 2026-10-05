@@ -18,7 +18,9 @@
 
 侧栏对照读取前后 URL、documentId、图片地址、编号和尺寸。期间来源或清单改变时拒绝提交这次快照；滚动引起的位置变化不会误判为文件变化。
 
-`lib/mhtml.mjs` 只读取 Chrome 生成的受控 multipart/related 快照中的图片，处理 base64、quoted-printable 和原始二进制。不执行 HTML，不把网页内容注入侧栏。它保留原始字节，拒绝截断和未知传输编码。
+`lib/mhtml.mjs` 只读取 Chrome 生成的受控 multipart/related 快照中的图片，处理 base64、quoted-printable 和原始二进制。不执行 HTML，不把网页内容注入侧栏。它保留原始字节，拒绝截断和未知传输编码。解析时按 `content-type` 跳过全部非图片部件（HTML、CSS、字体），不解码也不保存。
+
+扩展自身不发起任何图片请求：CSP 为 `connect-src 'none'`，代码里没有 fetch / XHR，缩略图由快照字节的 Blob URL 生成。由于字节来自网页自己已加载的资源，防盗链、Referer 检查、Cookie 与跨域 CORS 都不参与，目标图片服务器不会被再次访问。代价是没加载过的图片（懒加载未触发、已从渲染进程缓存淘汰、跨域 iframe）不会出现在快照里，只能报为未能提取，不会由扩展补请求。
 
 `lib/catalog.mjs` 匹配 currentSrc 和唯一的 src 别名。一个 src 对应不同响应式图片时，禁止使用该冲突回退；资源缺失和重复地址冲突变成单项 unavailable，不影响其他项。内嵌 data 图片单独解码。按 SHA-256 去重，合并所有重复出现的可见性。
 
@@ -46,6 +48,7 @@
 - [File System Access 规范](https://wicg.github.io/file-system-access/#api-showdirectorypicker)：选择器和授权要求用户激活与顶级同源环境；不能把跨域网页 iframe 当成已验证的目录选择替代方案。
 - [Chrome storage](https://developer.chrome.com/docs/extensions/reference/api/storage)：本地偏好和 session 生命周期。
 - [Chrome scripting](https://developer.chrome.com/docs/extensions/reference/api/scripting)：临时页面访问和 documentId 结果。
-- [Chrome pageCapture](https://developer.chrome.com/docs/extensions/reference/api/pageCapture)：快照 API；取图字节与资源映射的初始实证保留在前期验证记录。
+- [Chrome pageCapture](https://developer.chrome.com/docs/extensions/reference/api/pageCapture)：快照 API 的参数只有 `tabId`，无法指定缓存模式；取图字节与资源映射的初始实证保留在前期验证记录。
+- Chromium [frame_serializer.cc](https://github.com/chromium/chromium/blob/main/third_party/blink/renderer/core/frame/frame_serializer.cc)（2026-10-05 读取 main 分支）：`AddImageToResources()` 直接使用已加载图片对象的数据（`image->GetImage()->Data()`），图片缺失或出错时跳过而不重新请求；`SerializeCSSFile()` 对外链 CSS 使用 `FetchCacheMode::kDefault`，注释说明允许走缓存或网络；`AddFontToResources()` 对字体使用 `kForceCache`，注释说明避免新增网络请求。因此“图片零网络”成立，捕获阶段唯一可能新增的请求是外链 CSS，它不影响图片字节，也不属于扩展发起。
 
 快照字节与目录写入经过原型及正式构建验证，见[正式核验记录](../history/extension-native-validation.md)。当前已测和未测范围统一以[验证状态](../verification.md)为准，不从一次成功写入推断全部平台行为通过。
