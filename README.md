@@ -16,8 +16,9 @@ Windows 桌面 Chrome 的本地图片保存扩展。在当前窗口的侧边栏�
 
 - [使用说明与常见问题](docs/usage.md)
 - [开发、测试与打包](docs/development.md)
+- [Chrome 商店上架指南](docs/chrome-web-store-publish.md)
 - [当前架构与权限](docs/design/image-save.md)
 - [验证状态与已知限制](docs/verification.md)
-- [界面预览](docs/assets/panel-preview.png)（合成图片、模拟 API）
+- [界面预览](docs/assets/panel-preview.png)（含[深色模式](docs/assets/panel-preview-dark.png)与[响应式侧栏](docs/assets/panel-preview-compact.png)）
 
 历史设计与验证记录保存在 [docs/history](docs/history)，不作为当前使用说明。

@@ -35,6 +35,7 @@ function controls() {
   $("download-selected").textContent = `下载所选 · ${picked().length}`;
   $("download-all").textContent = `一键下载全部 · ${scopeReady().length}`;
   $("selection-count").textContent = `已选 ${picked().length} 张`;
+  $("selection-count").classList.toggle("has-selected", picked().length > 0);
   for (const checkbox of document.querySelectorAll(".card input")) checkbox.disabled = busy;
   const failures = lastSave?.job.results.filter((result) => result.status !== "saved").length || 0;
   $("retry").hidden = failures === 0;
@@ -42,6 +43,8 @@ function controls() {
   $("retry").textContent = `重试未成功项 · ${failures}`;
   $("stop").hidden = phase !== "saving";
   $("stop").disabled = stopRequested;
+  const permClass = directoryHandle ? (permission === "granted" ? "tag-granted" : "tag-pending") : "tag-first";
+  $("permission-tag").className = `tag ${permClass}`;
   $("permission-tag").textContent = directoryHandle ? (permission === "granted" ? "已授权" : "待授权") : "首次选择";
   $("directory-name").textContent = directoryHandle?.name || "尚未选择目录";
   $("choose-directory").textContent = directoryHandle ? "更换目录" : "选择目录";
