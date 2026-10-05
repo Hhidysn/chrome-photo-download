@@ -1,0 +1,7 @@
+{
+  "name": "chrome-page-image-save",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {"test": "node --test tests/*.test.mjs", "check": "node scripts/check.mjs", "preview": "node scripts/preview.mjs", "package": "powershell -NoProfile -File scripts/package.ps1"}
+}
